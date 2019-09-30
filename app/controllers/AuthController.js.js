@@ -21,6 +21,7 @@ module.exports = {
         } else {
             res.status(402).send({
                 msg : "ERR"
+                //bisa dong harusnya
             });
         }
     },

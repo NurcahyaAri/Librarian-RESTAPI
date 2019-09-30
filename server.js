@@ -1,7 +1,7 @@
 "use strict"
 const path = require('path');
 const fastify = require('fastify')({
-
+    logger : true,
 });
 require('dotenv').config({path : '.env'});
 

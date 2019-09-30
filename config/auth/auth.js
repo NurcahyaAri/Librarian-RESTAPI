@@ -18,7 +18,7 @@ class Auth {
         return fs.readFileSync(`${__dirname}/app.rsa.pub`); //openssl rsa -in app.rsa -pubout > app.rsa.pub
     }
 
-    async saveToLocal(token) {
+    async saveToLocal(token, id) {
         let dirPath = path.dirname(DIR_PATH);
         const mykey = crypto.createCipher('aes-128-cbc', process.env.KEY_ENC_TOKEN);
         token = mykey.update(token, 'utf8', 'hex')
@@ -29,6 +29,7 @@ class Auth {
 
             val.push({
                 token : token,
+                user_id : id,
                 used : 0
             })  
             fs.writeFile(DIR_PATH, JSON.stringify(val), () => {});
@@ -38,6 +39,7 @@ class Auth {
             let val = new Array()
             val.push({
                 token : token,
+                user_id : id,
                 used : 0
             });
             fs.mkdirSync(dirPath, {recursive : true});
@@ -67,7 +69,7 @@ class Auth {
             refreshToken : refreshToken
         }
 
-        this.saveToLocal(refreshToken);
+        this.saveToLocal(refreshToken, userId);
 
         return tokenResponse;
 
@@ -116,13 +118,29 @@ class Auth {
         fs.writeFileSync(DIR_PATH, JSON.stringify(val), () => {});
         return this.generateToken(tokenFound.sub, tokenFound.status);
     }
+    revokeToken(token){
+        const userToken = jwt.verify(token, this.getPrivateKey());
+        let val = fs.readFileSync(DIR_PATH, {encoding : "utf8"});
+        val = JSON.parse(val);
+        
+        const filtered = val.filter((v, i) => {
+            if(v.user_id != userToken.sub){
+                return v;
+            }
+        })
+
+        fs.writeFile(DIR_PATH, JSON.stringify(filtered));
+    }
 
     checkToken(token){
         const userToken = jwt.verify(token, this.getPrivateKey());
         if(userToken.exp > new Date().getTime()){
-            return true;
+            return {
+                status : true
+            };
         } else {
             return {
+                status : false,
                 msg : "TOKEN_WAS_EXPIRED"
             }
         }

@@ -2,11 +2,11 @@
 exports.up = function(knex) {
     return knex.schema.createTable('book_borrowed', function(t) {
         t.increments('load_id').unsigned().primary();
-        t.bigInteger('createdAt').notNull();
-        t.bigInteger('updatedAt').nullable();
+        t.bigInteger('created_at').notNull();
+        t.bigInteger('updated_at').nullable();
 
-        t.integer('user_id').unsigned().references('users.user_id').notNull();
-        t.integer('book_id').unsigned().references('books.book_id').notNull();
+        t.integer('user_fkid').unsigned().references('users.user_id').notNull();
+        t.integer('book_fkid').unsigned().references('books.book_id').notNull();
     });
 };
 

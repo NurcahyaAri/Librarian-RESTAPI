@@ -7,13 +7,20 @@ require('dotenv').config({path : '.env'});
 
 class Server {
     constructor(){
+        global.__basedir = __dirname;
         this.register();
         this.start();
     }
 
     async register(){
         this.port = process.env.PORT;
+        fastify.register(require('fastify-formbody'))
+        fastify.register(require('fastify-static'), {
+            root: path.join(__dirname, 'assets'),
+            prefix: '/public/', // optional: default '/'
+        })
         fastify.register(require('./config/routes')) // register routes
+          
     }
 
     async start() {

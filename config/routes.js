@@ -7,7 +7,7 @@ module.exports = function (fastify, opts, next) {
         }
     })
     fastify.register(AuthRouter, {prefix : 'auth'});
-    fastify.register(BookRouter, {prefix : 'api'});
+    fastify.register(BookRouter, {prefix : 'api/books'});
     /* how to write routes */ 
     // fastify.method(url, async (req, res) => {
     //     await middleware,

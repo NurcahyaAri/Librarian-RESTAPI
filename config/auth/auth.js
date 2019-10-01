@@ -132,11 +132,17 @@ class Auth {
         fs.writeFile(DIR_PATH, JSON.stringify(filtered));
     }
 
+    extractor(token){
+        const userToken = jwt.verify(token, this.getPrivateKey());
+        return userToken;
+    }
+    
     checkToken(token){
         const userToken = jwt.verify(token, this.getPrivateKey());
         if(userToken.exp > new Date().getTime()){
             return {
-                status : true
+                status : true,
+                payload : userToken
             };
         } else {
             return {

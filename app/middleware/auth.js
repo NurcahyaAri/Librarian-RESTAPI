@@ -1,8 +1,8 @@
 const auth = require('../../config/auth/auth');
 
 const checkAuth = (request, reply) => {
-    const {token} = request.headers;
-    const isValid = auth.checkToken(token);
+    const {authorization} = request.headers;
+    const isValid = auth.checkToken(authorization);
     if(isValid.status){
         return true;
     }

@@ -10,9 +10,10 @@ module.exports = {
         const {username, password} = req.body;
         let admin = await AdminModel
             .query()
-            .where('username', username)
+            .where('username', '=',username)
             .first()
             .limit(1);
+        console.log(admin);
         if(admin){
             if(bcrypt.compareSync(password, admin.password)){
                 let token = auth.generateToken(admin.admin_id, admin.user_type);
@@ -28,8 +29,8 @@ module.exports = {
 
     },
     checkToken : (req, res) => {
-        const {token} = req.headers;
-        let status = auth.checkToken(token);
+        const {authorization} = req.headers;
+        let status = auth.checkToken(authorization);
         console.log(status);
         if(status === true){
             res.send("OK");

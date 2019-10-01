@@ -7,6 +7,12 @@ exports.up = function(knex) {
 
         t.integer('user_fkid').unsigned().references('users.user_id').notNull();
         t.integer('book_fkid').unsigned().references('books.book_id').notNull();
+
+        t.bigInteger('time_load').unsigned().notNull();
+        t.bigInteger('time_return').unsigned().nullable();
+        t.bigInteger('time_returned').unsigned().nullable();
+
+        t.integer('fine').unsigned().nullable();
     });
 };
 

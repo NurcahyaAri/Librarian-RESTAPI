@@ -1,5 +1,5 @@
 const { Model } = require('../../config/database');
-const Post = require('./Posts');
+const Borrowed = require('./Book_borrowed');
 class Users extends Model{
     static get tableName(){
         return 'users';
@@ -7,14 +7,16 @@ class Users extends Model{
 
     static get relationMappings(){
         return {
-            Post : {
+            Borrowed : {
                 relation : Model.HasManyRelation,
-                medelClass : Post,
+                medelClass : Borrowed,
                 join : {
                     from : 'user.user_id',
-                    to : 'user.user_fkid'
+                    to : 'borrowed.user_fkid'
                 }
             }
         }
     }
 }
+
+module.exports = Users;

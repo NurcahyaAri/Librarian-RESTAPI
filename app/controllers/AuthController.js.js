@@ -3,26 +3,44 @@ const bcrypt = require('bcryptjs');
 
 // init model
 const AdminModel = require('../models/Admin');
+const UserModel = require('../models/Users');
 
 auth.init(60)
 module.exports = {
     login : async (req, res) => {
         const {username, password} = req.body;
-        let admin = await AdminModel
-            .query()
-            .where('username', '=',username)
-            .first()
-            .limit(1);
-        console.log(admin);
-        if(admin){
-            if(bcrypt.compareSync(password, admin.password)){
-                let token = auth.generateToken(admin.admin_id, admin.user_type);
-                res.send(token);
+        let admin = undefined;
+        let user = undefined;
+        try{
+            admin = await AdminModel
+                .query()
+                .where('username', '=',username)
+                .first()
+                .limit(1);
+            if(admin){
+                if(bcrypt.compareSync(password, admin.password)){
+                    let token = auth.generateToken(admin.admin_id, admin.user_type);
+                    return res.send(token);
+                }
+            } else {
+                user = await UserModel
+                    .query()
+                    .where("username", "=", username)
+                    .first()
+                    .limit(1);
+                if(user){
+                    if(bcrypt.compareSync(password, user.password)){
+                        let token = auth.generateToken(user.user_id, "member");
+                        return res.send(token);
+                    }
+                }
+                else {
+                    throw "NO_MATCH_USERS";
+                }
             }
-        } else {
-            res.status(402).send({
-                msg : "ERR"
-                //bisa dong harusnya
+        } catch (e){
+            return res.status(402).send({
+                ...e
             });
         }
     },

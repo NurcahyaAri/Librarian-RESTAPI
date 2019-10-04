@@ -4,17 +4,31 @@ const MvUpload = require('../helpers/Upload').move;
 const auth = require('../../config/auth/auth');
 module.exports = {
     getBooks: async (request, reply) => {
-        let {page, limit} = request.query;
+        let {page, limit, id} = request.query;
         let currentPage = 0;
-        console.log(page);
-        console.log(limit);
+        page = parseInt(page);
+        limit = parseInt(limit);
         if(limit){
-            currentPage = parseInt(page) * parseInt(limit);
+            currentPage = page * limit;
         }
         console.log(currentPage);
         let Book = undefined;
         
-        if(limit){
+        if(id){
+            try{
+                Book = await BookModel
+                    .query()
+                    .where("book_id", "=", id)
+                    .first()
+                    .limit(1);
+            }catch(e){
+                res.status(500).send({
+                    status : "ERROR_FETCH_BY_ID",
+                    msg : e
+                }) 
+            }
+        }
+        else if(limit){
             Book = await BookModel
                 .query()
                 .offset(currentPage)
@@ -23,12 +37,17 @@ module.exports = {
             Book = await BookModel
                 .query()
         }
-        reply.status(200).send(Book);
+        reply.status(200).send({
+            total : Book.length,
+            page : page,
+            limit : limit ? limit : Book.length,
+            data : Book
+        });
     },
     insertBook : async (request, reply) => {
         try{
             let payload = auth.extractor(request.headers.authorization);
-            let newDir = MvUpload(request, request.file.filename, payload.sub);
+            let newDir = MvUpload(request, request.file.filename, payload.sub, "books");
             let success = await BookModel
                 .query()
                 .insert({
@@ -76,14 +95,22 @@ module.exports = {
     },
     updateBook : async (request, reply) => {
         try{
-            const {book_id} = request.body;
-            delete request.body.book_id;
+            const {id} = request.params;
+            try{
+                let payload = auth.extractor(request.headers.authorization);
+                let newDir = MvUpload(request, request.file.filename, payload.sub, "books");
+            } catch(e){
+                console.log("NO_NEW_PHOTO");    
+            }
+            console.log(id);
+            console.log(request.body);
+            // delete request.body.book_id;
             let success = await BookModel
                 .query()
                 .update({
                     ...request.body
                 })
-                .where("book_id", "=", book_id);
+                .where("book_id", "=", id);
             if(success){
                 reply.status(200).send({
                     msg : "SUCCESS"

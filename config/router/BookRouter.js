@@ -16,9 +16,11 @@ module.exports = async function(fastify, opt, next){
             await BooksController.deleteBook(request, reply);
         }
     });
-    // fastify.put('/book/:id', async (request, reply) => {
-
-    // })
+    fastify.patch('/:id', {preHandler : Multer.single('photo')}, async (request, reply) => {
+        if(AuthMiddleware(request, reply)){
+            await BooksController.updateBook(request, reply);
+        }
+    })
 
     fastify.post('/category', async (request, reply, next) => {
         if(AuthMiddleware(request, reply)){

@@ -14,7 +14,10 @@ class Server {
 
     async register(){
         this.port = process.env.PORT;
-        fastify.register(require('fastify-formbody'))
+        fastify.register(require('fastify-cors'), { 
+            // put your options here
+        })          
+        fastify.register(require('fastify-formbody'));
         fastify.register(require('fastify-static'), {
             root: path.join(__dirname, 'assets'),
             prefix: '/public/', // optional: default '/'

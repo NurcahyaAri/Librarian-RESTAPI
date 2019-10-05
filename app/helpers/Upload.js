@@ -19,11 +19,11 @@ const upload = multer({
 });
 
 const move = (req, filename, userid, type) => {
-    
-    if (!fs.existsSync(`${__basedir}/assets/${type}/${userid}`)){
-        fs.mkdirSync(`${__basedir}/assets/${type}/${userid}`);
+    console.log(process.cwd());
+    if (!fs.existsSync(`${process.cwd()}/assets/${type}/${userid}`)){
+        fs.mkdirSync(`${process.cwd()}/assets/${type}/${userid}`, {recursive:true});
     }
-    const err = fs.renameSync(`${__basedir}/assets/${type}/${filename}`, `${__basedir}/assets/${type}/${userid}/${filename}`);
+    const err = fs.renameSync(`${process.cwd()}/assets/${filename}`, `${process.cwd()}/assets/${type}/${userid}/${filename}`);
     if(err === undefined){
         const newDir = `public/${type}/${userid}/${filename}`;
         const url = `${req.headers.host}/${newDir}`;

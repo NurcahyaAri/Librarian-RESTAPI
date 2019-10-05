@@ -1,11 +1,14 @@
-const auth = require('../../config/auth/auth');
+// const auth = require('../../config/auth/auth');
+const auth = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 
 // init model
 const AdminModel = require('../models/Admin');
 const UserModel = require('../models/Users');
 
-auth.init(60)
+const Auth = new auth();
+Auth.init(60)
+
 module.exports = {
     login : async (req, res) => {
         const {username, password} = req.body;
@@ -19,7 +22,7 @@ module.exports = {
                 .limit(1);
             if(admin){
                 if(bcrypt.compareSync(password, admin.password)){
-                    let token = auth.generateToken(admin.admin_id, admin.user_type);
+                    let token = Auth.generateToken(admin.admin_id, admin.user_type);
                     return res.send(token);
                 }
             } else {
@@ -30,7 +33,7 @@ module.exports = {
                     .limit(1);
                 if(user){
                     if(bcrypt.compareSync(password, user.password)){
-                        let token = auth.generateToken(user.user_id, "member");
+                        let token = Auth.generateToken(user.user_id, "member");
                         return res.send(token);
                     }
                 }
@@ -49,7 +52,7 @@ module.exports = {
     },
     checkToken : (req, res) => {
         const {authorization} = req.headers;
-        let status = auth.checkToken(authorization);
+        let status = Auth.checkToken(authorization);
         console.log(status);
         if(status === true){
             res.send("OK");
@@ -61,7 +64,7 @@ module.exports = {
         const {refreshtoken} = req.headers;
         console.log(req.headers);
         console.log(refreshtoken);
-        let token = auth.refreshToken(refreshtoken);
+        let token = Auth.refreshToken(refreshtoken);
         res.send(token);
     }
 }

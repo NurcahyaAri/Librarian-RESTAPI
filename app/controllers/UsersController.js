@@ -1,5 +1,6 @@
 const UserModel = require('../models/Users');
-const auth = require('../../config/auth/auth');
+const auth = require('../middleware/auth');
+const Auth = new auth();
 module.exports = {
     getUsers : async (request, reply) => {
         let {page, limit, id} = request.query;
@@ -41,8 +42,24 @@ module.exports = {
             data : users
         });
     },
-    getUserInfo : async (request, reply) => {
-        let jwtExtactor = await auth.extractor(request.headers.authorization);
+    getUser : async (request, reply) => {
+        const {id} = request.params;
+        let user = undefined;
+        try{
+            user = await UserModel
+                .query()
+                .where('user_id', '=', id)
+                .first()
+                .limit(1);
+        } catch(e) {
+            res.status(500).send({
+                msg : e
+            })
+        }
+        res.status(200).send(user)
+    },
+    getProfile : async (request, reply) => {
+        let jwtExtactor = await Auth.extractor(request.headers.authorization);
         let user = undefined;
         try{
             user = await UserModel

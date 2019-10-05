@@ -1,7 +1,10 @@
 const BookModel = require('../models/Books');
 const BookCategoryModel = require('../models/Book_category');
 const MvUpload = require('../helpers/Upload').move;
-const auth = require('../../config/auth/auth');
+const auth = require('../middleware/auth');
+
+const Auth = new auth();
+
 module.exports = {
     getBooks: async (request, reply) => {
         let {page, limit, id} = request.query;
@@ -37,16 +40,22 @@ module.exports = {
             Book = await BookModel
                 .query()
         }
-        reply.status(200).send({
-            total : Book.length,
-            page : page,
-            limit : limit ? limit : Book.length,
-            data : Book
-        });
+        if(Book){
+            reply.status(200).send({
+                total : Book.length ? Book.length : 1,
+                page : page,
+                limit : limit ? limit : Book.length ? Book.length : 1,
+                data : Book
+            });
+        } else {
+            reply.status(200).send({
+                data : null
+            })
+        }
     },
     insertBook : async (request, reply) => {
         try{
-            let payload = auth.extractor(request.headers.authorization);
+            let payload = Auth.extractor(request.headers.authorization);
             let newDir = MvUpload(request, request.file.filename, payload.sub, "books");
             let success = await BookModel
                 .query()
@@ -97,7 +106,7 @@ module.exports = {
         try{
             const {id} = request.params;
             try{
-                let payload = auth.extractor(request.headers.authorization);
+                let payload = Auth.extractor(request.headers.authorization);
                 let newDir = MvUpload(request, request.file.filename, payload.sub, "books");
             } catch(e){
                 console.log("NO_NEW_PHOTO");    

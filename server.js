@@ -1,7 +1,7 @@
 "use strict"
 const path = require('path');
-const cluster = require('cluster')
-const os = require('os')
+const cluster = require('cluster');
+const os = require('os');
 const fastify = require('fastify')({
     logger : true,
 });

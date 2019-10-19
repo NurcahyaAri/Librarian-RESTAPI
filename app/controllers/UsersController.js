@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs');
+
 const UserModel = require('../models/Users');
 const auth = require('../middleware/auth');
 const Auth = new auth();
@@ -20,7 +22,7 @@ module.exports = {
                     .first()
                     .limit(1);
             }catch(e){
-                res.status(500).send({
+                reply.status(500).send({
                     status : "ERROR_FETCH_BY_ID",
                     msg : e
                 }) 
@@ -51,12 +53,12 @@ module.exports = {
                 .where('user_id', '=', id)
                 .first()
                 .limit(1);
+            reply.status(200).send(user)
         } catch(e) {
-            res.status(500).send({
+            reply.status(500).send({
                 msg : e
             })
         }
-        res.status(200).send(user)
     },
     getProfile : async (request, reply) => {
         let jwtExtactor = await Auth.extractor(request.headers.authorization);
@@ -76,24 +78,33 @@ module.exports = {
     },
     insertUser : async (request, reply) => {
         let users = undefined;
-        console.log(request);
-        console.log(request.body);
         try{
+            if(!request.body.password){
+                throw "PASSWORD_CAN'T_EMPTY";
+            }
+            if(request.body.password !== request.body.repassword){
+                throw "PASSWORD_DID'T_MATCH";
+            }
+            if(request.body.password){
+                let salt = bcrypt.genSaltSync(12);
+                request.body.password = bcrypt.hashSync(request.body.password, salt);
+                delete request.body.repassword;
+            }
             users = await UserModel
             .query()
             .insert({
                 created_at : new Date().getTime(),
                 ...request.body,
             })
+            reply.status(201).send({
+                status : 'SUCCESS',
+            })
         } catch(e){
             console.log("error");
             console.log(e);
             reply.status(500).send({
-                ...e
-            })
-        } finally {
-            reply.status(500).send({
-                msg : 'SUCCESS'
+                status : "ERROR",
+                msg : e
             })
         }
         

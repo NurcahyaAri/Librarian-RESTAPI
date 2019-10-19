@@ -25,7 +25,7 @@ module.exports = {
                     .first()
                     .limit(1);
             }catch(e){
-                res.status(500).send({
+                reply.status(500).send({
                     status : "ERROR_FETCH_BY_ID",
                     msg : e
                 }) 
@@ -135,7 +135,6 @@ module.exports = {
         }
     },
     insertBookCategory : async (request, reply) => {
-        console.log("HEllo");
         const { name } = request.body;
         let success = await BookCategoryModel
             .query()
@@ -149,5 +148,8 @@ module.exports = {
             });
         }
         reply.status(500);
+    },
+    loadBooks : async (request, reply) => {
+
     }
 }

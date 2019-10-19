@@ -3,9 +3,7 @@ const BookRouter = require('./router/BookRouter');
 const UserRouter = require('./router/UserRouter');
 module.exports = function (fastify, opts, next) {
     fastify.get('/', async (request, reply) => {
-        return {
-            Hello : "This is Fastify Api"
-        }
+        return "Hello World";
     })
     fastify.register(AuthRouter, {prefix : 'auth'});
     fastify.register(BookRouter, {prefix : 'api/books'});

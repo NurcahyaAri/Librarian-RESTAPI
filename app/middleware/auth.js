@@ -18,53 +18,61 @@ class Auth extends auth{
     constructor(){
         super()
         this.checkAuth = this.checkAuth.bind(this);
-        this.isAdmin = this.isAdmin.bind(this);
         this.isMember = this.isMember.bind(this);
     }
     init(exp = 8){
         super.init(exp);
-        this.state = {
-            token : '',
-            accepted : false,
-        }
         this.token = '',
         this.accepted = false;
+    }
+    isAccepted(){
+        return this.accepted;
     }
     checkAuth(request, reply){
         const {authorization} = request.headers;
         this.token = authorization;
         const isValid = this.checkToken(authorization);
         if(isValid.status){
-            this.accepted = true;
+            const data = this.extractor(this.token);
+            const admins = ['super_admin', 'admin'];
+            if(admins.includes(data.status)){
+                this.accepted = true;
+            } else {
+                this.accepted = false;
+            }
         } else {
             reply.status(403).send(isValid);
             this.accepted = false;
         }
         return this;
     }
-    isAdmin(){
+    isLibrarian(){
         if(this.accepted){
-            const acceptedUser = ['admin', 'super_admin'];
+            const acceptedUser = ['librarian'];
             const data = this.extractor(this.token)
             if(acceptedUser.includes(data.status)){
-                return true;
+                this.accepted = true;
             } else {
-                return false;
+                if(!this.accepted){
+                    this.accepted = false;
+                }
             }
         }
-        return false;
+        return this;
     }
     isMember(){
         if(this.accepted){
-            const acceptedUser = ['admin', 'super_admin'];
+            const acceptedUser = ['member'];
             const data = this.extractor(this.token)
             if(!acceptedUser.includes(data.status)){
-                return true;
+                this.accepted = true;
             } else {
-                return false;
+                if(!this.accepted){
+                    this.accepted = false;
+                }
             }
         }
-        return false;
+        return this;
     }
 }
 
